@@ -19,15 +19,24 @@ int main() {
         return 1;
     }
     //error handling
+    std::cout << "Socket created\n";
+
 
     bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)); // bind the socket and address structure
     listen(server_fd,5);
-    while(true){
-        //dumb fix
-        sleep(1);
-    }
-    
-    std::cout << "Socket created\n";
 
+    int client_socket = accept(server_fd, nullptr, nullptr);  //it also gives client port and IP which we do not need for now that's why nullptr
+    //above line is also sufficient to remove the dumb fix(infinite loop)
+    std::cout << "client socket created\n";
+
+    //actual communication 
+    char buffer[1024]={0};
+    recv(client_socket, buffer, sizeof(buffer),0); //server now ready to receive bytes from client_socket and store into buffer
+    std::cout<<"client sent: "<<buffer<<"\n";   
+
+    //server's response
+    const char* reply = "this is sent back by server";
+    int bytes_sent = send(client_socket, reply, strlen(reply), 0);
+    std::cout << "Bytes sent: " << bytes_sent << "\n";    
     return 0;
 }

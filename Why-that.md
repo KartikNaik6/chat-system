@@ -6,6 +6,9 @@ htons(): makes sure that byte order is big endian msb first then lsb; this is th
 INADDR_ANY: kernal takes this as 0.0.0.0 which actively listens to all the interfaces on the device (lan, localhost, ethernet etc)
 bind(): binds socket and structure 
 sockaddr*: why not sockaddr_in*? because kernal API is generic: so use sockaddr*
-listen(): is what tells kernal that this socket is ready for incoming connections (TCP in this case)
-
-
+listen(): is what tells kernal that this socket is ready for incoming connections (TCP in this case); incoming connections enter pending queue
+accept(): accept returns the connected socket after TCP handshake; kernal handles tcp handshake itself
+inet_pton(): human readable IP string to binary representation (presentation -> network); because kernal internally uses binary representation 
+connect(): similar to bind but bind tells that the calling function owns the structure details while connect asks kernal to establish a connection with the server structure details attached to client code
+recv(): this is to make the process ready for incoming bytes 
+send(): tells kernal to copy these bytes into TCP send buffer and transmit them; note sending and receiving can be done at same socket since the mode of communication is full duplex

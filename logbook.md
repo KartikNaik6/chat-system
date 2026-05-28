@@ -6,3 +6,10 @@ may 26-26
 created socket structure and bound it to socket
 made that socket ready for TCP connections using listen
 debug- found that when program eventually reaches return 0 after listen it force shuts the running program and sockets are closed; did a dumb fix with never ending loop.
+
+may 27-26
+added accept() which takes the connnection request from the queue of listen() and gives it its own socket
+created a test client added structure details of server within client code to help client connect with the server
+connected to server using connect()
+using send receive to actually communicate 
+one lesson: add lines to check for errors - would be very helpful for late to debug
