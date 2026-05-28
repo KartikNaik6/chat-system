@@ -3,6 +3,21 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
+#include <thread>
+
+void receive_messages(int client_socket){
+    char buffer[1024]={0};
+    while(true){
+        int bytes_received=recv(client_socket, buffer, sizeof(buffer),0); //server now ready to receive bytes from client_socket and store into buffer
+
+        if(bytes_received<=0){
+            std::cout<<"client disconnected";
+            break;
+        }
+        
+        std::cout<<"client sent: "<<buffer<<"\n"; 
+    }
+}
 
 int main() {
     //what is a socket?: kernal managed endpoint 
@@ -29,14 +44,19 @@ int main() {
     //above line is also sufficient to remove the dumb fix(infinite loop)
     std::cout << "client socket created\n";
 
-    //actual communication 
-    char buffer[1024]={0};
-    recv(client_socket, buffer, sizeof(buffer),0); //server now ready to receive bytes from client_socket and store into buffer
-    std::cout<<"client sent: "<<buffer<<"\n";   
+    std::thread receiver(receive_messages,client_socket);
 
-    //server's response
-    const char* reply = "this is sent back by server";
-    int bytes_sent = send(client_socket, reply, strlen(reply), 0);
-    std::cout << "Bytes sent: " << bytes_sent << "\n";    
+    //actual communication 
+    while(true){
+        //server's response
+        std::string reply;
+        std::getline(std::cin,reply);
+
+        int bytes_sent = send(client_socket, reply.c_str(), reply.length(), 0);
+        std::cout << "Bytes sent: " << bytes_sent << "\n";  
+    }
+
+    receiver.join();
+
     return 0;
 }

@@ -4,6 +4,21 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
+#include <thread>
+
+void receive_messages(int sock){
+    char buffer[1024]={0};
+//instead within the main loop made receiving as another function and running it simultaneously using threading 
+    while(true){
+        int bytes_received = recv(sock, buffer, sizeof(buffer), 0);
+
+        if(bytes_received<=0){
+            std::cout<<"Disconnected from the server\n ";
+            break;
+        }
+        std::cout<<"server's response:"<<buffer<<"\n";
+    }
+}
 
 int main() {
 
@@ -27,15 +42,16 @@ int main() {
     }
     std::cout<<"connected to the server!!\n";
 
+    //running the receiver thread
+    std::thread receiver(receive_messages,sock);
+
     // actual communication part
-    const char* message = "Hello from client";
-    send(sock, message, strlen(message),0);
-    
-    char clibuffer[1024]={0}; 
-    int bytes_received = recv(sock, clibuffer, sizeof(clibuffer), 0);
+    while(true){
+        std::string message;
+        std::getline(std::cin,message);
 
-    std::cout << "Bytes received: " << bytes_received << "\n";
-    std::cout<<"server's response:"<<clibuffer<<"\n";
-
+        send(sock, message.c_str(), message.length(),0);
+    }
+    receiver.join();
     return 0;
 }

@@ -12,3 +12,4 @@ inet_pton(): human readable IP string to binary representation (presentation -> 
 connect(): similar to bind but bind tells that the calling function owns the structure details while connect asks kernal to establish a connection with the server structure details attached to client code
 recv(): this is to make the process ready for incoming bytes 
 send(): tells kernal to copy these bytes into TCP send buffer and transmit them; note sending and receiving can be done at same socket since the mode of communication is full duplex
+c_str(): this converts cpp string to c style string pointer (kernal purposes)

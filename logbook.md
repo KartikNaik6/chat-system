@@ -13,3 +13,7 @@ created a test client added structure details of server within client code to he
 connected to server using connect()
 using send receive to actually communicate 
 one lesson: add lines to check for errors - would be very helpful for late to debug
+
+may 28-26
+added infinite looping for turn based communication and replaced hardcoded messages with dynamic ones 
+used threads to run receiver and sender functions concurrently this replaces turn based communication with real time communication
