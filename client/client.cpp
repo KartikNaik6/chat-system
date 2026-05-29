@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <thread>
+#include <atomic>
+
+std::atomic<bool> running(true);
 
 void receive_messages(int sock){
     char buffer[1024]={0};
@@ -14,6 +17,7 @@ void receive_messages(int sock){
 
         if(bytes_received<=0){
             std::cout<<"Disconnected from the server\n ";
+            running = false;
             break;
         }
         std::cout<<"server's response:"<<buffer<<"\n";
@@ -46,7 +50,7 @@ int main() {
     std::thread receiver(receive_messages,sock);
 
     // actual communication part
-    while(true){
+    while(running){
         std::string message;
         std::getline(std::cin,message);
 

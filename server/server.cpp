@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <thread>
+#include <atomic>
+
+std::atomic<bool> running(true);
 
 void receive_messages(int client_socket){
     char buffer[1024]={0};
@@ -12,6 +15,7 @@ void receive_messages(int client_socket){
 
         if(bytes_received<=0){
             std::cout<<"client disconnected";
+            running = false;      //shared flag between main and this thread (thread comms using shared memory)
             break;
         }
         
@@ -47,7 +51,7 @@ int main() {
     std::thread receiver(receive_messages,client_socket);
 
     //actual communication 
-    while(true){
+    while(running){
         //server's response
         std::string reply;
         std::getline(std::cin,reply);
