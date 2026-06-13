@@ -6,7 +6,9 @@
 #include <thread>
 #include <atomic>
 
-std::atomic<bool> running(true);
+using namespace std;
+
+atomic<bool> running(true);
 
 void receive_messages(int client_socket){
     char buffer[1024]={0};
@@ -14,13 +16,26 @@ void receive_messages(int client_socket){
         int bytes_received=recv(client_socket, buffer, sizeof(buffer),0); //server now ready to receive bytes from client_socket and store into buffer
 
         if(bytes_received<=0){
-            std::cout<<"client disconnected";
+            cout<<"client disconnected";
             running = false;      //shared flag between main and this thread (thread comms using shared memory)
             break;
         }
         
-        std::cout<<"client sent: "<<buffer<<"\n"; 
+        cout<<"client sent: "<<buffer<<"\n"; 
     }
+}
+
+void handle_client(int client_socket) {
+    thread receiver(receive_messages, client_socket);
+
+    while(running){
+        string reply;
+        getline(cin,reply);// all the client threads would try to read from this same line
+
+        int bytes_sent = send(client_socket, reply.c_str(), reply.length(),0);
+        cout<<"Bytes sen: "<<bytes_sent<<"\n";
+    }
+    receiver.join();
 }
 
 int main() {
@@ -34,11 +49,11 @@ int main() {
     //socket() asks kernal to create a socket for it which speaks IPv4 (AF_NET) and is stream oriented (SOCK_STREAM)
     //in linux everything is treated as a stream hence file descriptors are used
     if (server_fd < 0) {
-        std::cerr << "Socket creation failed\n";
+        cerr << "Socket creation failed\n";
         return 1;
     }
     //error handling
-    std::cout << "Socket created\n";
+    cout << "Socket created\n";
 
 
     bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)); // bind the socket and address structure
@@ -46,21 +61,12 @@ int main() {
 
     int client_socket = accept(server_fd, nullptr, nullptr);  //it also gives client port and IP which we do not need for now that's why nullptr
     //above line is also sufficient to remove the dumb fix(infinite loop)
-    std::cout << "client socket created\n";
+    cout << "client socket created\n";
 
-    std::thread receiver(receive_messages,client_socket);
+    thread receiver(receive_messages,client_socket);
 
     //actual communication 
-    while(running){
-        //server's response
-        std::string reply;
-        std::getline(std::cin,reply);
-
-        int bytes_sent = send(client_socket, reply.c_str(), reply.length(), 0);
-        std::cout << "Bytes sent: " << bytes_sent << "\n";  
-    }
-
-    receiver.join();
+    handle_client(client_socket); //moved this big code into a function
 
     return 0;
 }

@@ -7,7 +7,9 @@
 #include <thread>
 #include <atomic>
 
-std::atomic<bool> running(true);
+using namespace std;
+
+atomic<bool> running(true);
 
 void receive_messages(int sock){
     char buffer[1024]={0};
@@ -16,11 +18,11 @@ void receive_messages(int sock){
         int bytes_received = recv(sock, buffer, sizeof(buffer), 0);
 
         if(bytes_received<=0){
-            std::cout<<"Disconnected from the server\n ";
+            cout<<"Disconnected from the server\n ";
             running = false;
             break;
         }
-        std::cout<<"server's response:"<<buffer<<"\n";
+        cout<<"server's response:"<<buffer<<"\n";
     }
 }
 
@@ -29,7 +31,7 @@ int main() {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sock < 0) {
-        std::cerr << "Socket creation failed\n";
+        cerr << "Socket creation failed\n";
         return 1;
     }
 
@@ -41,18 +43,18 @@ int main() {
     
     int connection_status = connect(sock, (sockaddr*)&server_addr, sizeof(server_addr)); //actul connection with the server
     if(connection_status<0){
-        std::cout<<"Connection failed\n";
+        cout<<"Connection failed\n";
         return 1;
     }
-    std::cout<<"connected to the server!!\n";
+    cout<<"connected to the server!!\n";
 
     //running the receiver thread
-    std::thread receiver(receive_messages,sock);
+    thread receiver(receive_messages,sock);
 
     // actual communication part
     while(running){
-        std::string message;
-        std::getline(std::cin,message);
+        string message;
+        getline(cin,message);
 
         send(sock, message.c_str(), message.length(),0);
     }
